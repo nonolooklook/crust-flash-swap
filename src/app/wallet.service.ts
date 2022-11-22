@@ -5,6 +5,11 @@ import { BehaviorSubject, from, Observable } from 'rxjs';
 import { AppStateService, LoginMethod } from './app-state.service';
 import { createWallet } from './wallets/factory';
 import { Wallet } from './wallets/wallet';
+
+function isNotMetaMask() {
+  const ethereum = (window as any).ethereum;
+  return !ethereum || ethereum.isOKExWallet || ethereum.isOkxWallet;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -19,7 +24,9 @@ export class WalletService implements OnDestroy {
     const lm = appState.getLoginMethod();
 
     if (lm !== LoginMethod.NotLogIn) {
-      this.wallet = createWallet(lm);
+      if (!(lm === LoginMethod.MetaMask && isNotMetaMask())) {
+        this.wallet = createWallet(lm);
+      }
       if (this.wallet)
         this.wallet
           .init()
@@ -62,7 +69,7 @@ export class WalletService implements OnDestroy {
   public connectWallet(
     loginMethod: LoginMethod = LoginMethod.MetaMask
   ): Observable<void> {
-    if (loginMethod === LoginMethod.MetaMask && !(window as any).ethereum) {
+    if (loginMethod === LoginMethod.MetaMask && isNotMetaMask()) {
       this.toast.error('Please install MetaMask!');
       return from([]);
     }
