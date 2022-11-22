@@ -2,12 +2,11 @@ name: Beta Release to Github Pages
 
 on:
   push:
-    branches: [main]
+    branches: [beta]
   workflow_dispatch:
 
 jobs:
   build:
-    if: github.repository == 'maxmuncy/crust-flash-swap'
     runs-on: ubuntu-latest
 
     steps:
